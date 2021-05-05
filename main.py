@@ -81,7 +81,7 @@ def mainn_menuu(chatid):
                          " que está na barra das mensagens, que é um quadrado com 4 bolinhas lá dentro\n\n"
                          "Caso não queiras nenhuma, podes simplesmente sair da conversa"
                          ", que quando voltares, estarei a tua espera!\n\nPs: Se quiseres uma piada seca, "
-                         "escreve 'Piada Seca'\n\nSe me quiserem ajudar de alguma forma, podem-me ajudar através daqui: https://www.paypal.me/souocare\n\n***Warning:*** Eu dependo de que os sites das transportadoras estejam"
+                         "escreve 'Piada Seca'\n\nSe me quiserem ajudar de alguma forma, podem-me ajudar através daqui: https://www.paypal.me/souocare \n\n***Warning:*** Eu dependo de que os sites das transportadoras estejam"
                          " funcionais. Por isso se algo não der, desculpa. Algum problema, "
                          "contacta-me para gonga1999@outlook.pt", reply_markup=markup, parse_mode='Markdown', disable_web_page_preview=True)
 
@@ -98,23 +98,26 @@ if __name__ == '__main__':
         else:
             try:
                 print("Chat ID: " + str(response[0]['message']["chat"]["id"]) +
-                  "\nNome: " + str(response[0]['message']["chat"]["first_name"]) + " " + response[0]['message']["chat"]["last_name"] +
-                  "\nMensagem: " + str(response[0]['message']['text']) +
-                  "\nHoras: " + str(datetime.datetime.fromtimestamp(response[0]['message']['date'])) +
-                  "\nInformação adicional: " + check_chatid(str(response[0]['message']["chat"]["id"]),
-                                                            str(response[0]['message']["chat"]["first_name"]) + " " + response[0]['message']["chat"]["last_name"]) + "\n")
+                        "\nMensagem: " + str(response[0]['message']['text']) +
+                        "\nHoras: " + str(datetime.datetime.fromtimestamp(response[0]['message']['date'])) +
+                        "\nInformação adicional: " + check_chatid(str(response[0]['message']["chat"]["id"]),
+                                                                str(response[0]['message']["chat"]["first_name"]) + " " + response[0]['message']["chat"]["last_name"]) + "\n")
 
             except KeyError:
-                try:
-                    print("Chat ID: " + str(response[0]['message']["chat"]["id"]) +
-                          "\nNome: " + str(response[0]['message']["chat"]["first_name"]) +
-                          "\nMensagem: " + str(response[0]['message']['text']) +
-                          "\nHoras: " + str(datetime.datetime.fromtimestamp(response[0]['message']['date'])) +
-                          "\nInformação adicional: " + check_chatid(str(response[0]['message']["chat"]["id"]),
-                                                                    str(response[0]['message']["chat"]["first_name"]) + " " + response[0]['message']["chat"]["last_name"]) + "\n")
+                pass
 
-                except KeyError:
-                    pass
+            chat_id = response[0]["message"]['from']['id']
+            cursor.execute("select IdUser from Users where [IdUser] = {userid} ;".format(userid=chat_id))
+            check_ifuserexists = cursor.fetchall()
+            print(check_ifuserexists)
+            if len(check_ifuserexists) > 0:
+                pass
+            else:
+                cursor.execute("insert into Users ([IdUser]) "
+                                "values ({iduser});".format(iduser=chat_id))
+                connection.commit()
+
+            
 
             try:
                 if response[0]['message']['text'] == '/start' \
@@ -146,6 +149,10 @@ if __name__ == '__main__':
 
 
                 elif response[0]['message']['text'] == 'Metro':
+                    cursor.execute("Update Users "
+                                    "set [last_option] = 2 "
+                                    "where [IdUser] = {iduser} ;".format(iduser=chat_id))
+                    connection.commit()
                     metro_option(response, response[0]['message']['from']['id'])
                     # metro_info.metro_option(response, main_menu(response))
 
